@@ -8,6 +8,10 @@ target 'RNFirebase' do
 
   use_react_native!(:path => config["reactNativePath"])
 
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
+
+  pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
+
   target 'RNFirebaseTests' do
     inherit! :complete
     # Pods for testing

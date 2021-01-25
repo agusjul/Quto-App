@@ -1,152 +1,141 @@
 import React, { Component } from 'react';
-import {View, Text, ScrollView, Image} from 'react-native';
-import image1 from '../src/image/zamato/1.jpg'
-import image2 from '../src/image/zamato/2.jpg';
-import image3 from '../src/image/zamato/3.jpg';
-import image4 from '../src/image/zamato/4.jpg';
-import image5 from '../src/image/zamato/5.jpg';
+import {View, Text, ScrollView, Image, TouchableOpacity, findNodeHandle} from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import { TextPath } from 'react-native-svg';
 
 class ListFood extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            foodList: [],
+            keranjangList : [],
+            basketList : [],
+            hargaTotal : 0
+        }
+       this.autoGetFood()
+       this.autoGetKeranjang()
+       
+    }
+
+    autoGetFood = () => {
+        firestore()
+            .collection("foodList")
+            .onSnapshot(docs => {
+                let anyfoodlist = []
+                docs.forEach(doc => {
+                    anyfoodlist.push(doc)
+                })
+                this.setState({
+                    foodList: anyfoodlist
+                })
+            })
+    }
+
+    //Mencari makanan di keranjang
+   sumPrice = () => {
+       var totalid = 0
+       for (var i = 0; i < this.state.keranjangList.length; i++) {
+           totalid += this.state.keranjangList[i].hargaPesanan 
+       }
+       return totalid
+   } 
+
+    sumTotal = () => {
+        var totalid = 0
+        for (var i = 0; i < this.state.keranjangList.length; i++) {
+            totalid += this.state.keranjangList[i].jumlahPesanan
+        }
+        return totalid
+    } 
+
+
+    autoGetKeranjang = () => {
+        firestore()
+            .collection("keranjang")
+            .onSnapshot(docs => {
+                let anykeranjang = []
+                docs.forEach(doc => {
+                    anykeranjang.push(doc.data())
+                })
+                this.setState({
+                    keranjangList: anykeranjang
+                })
+            })
+       
+    }
+
+    lihatKeranjang = () => {
+        if(this.state.keranjangList.length<1){
+            return(
+                null
+            )
+        } else {
+            return(
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate("Keranjangpage")}
+                    style={{ backgroundColor: '#F16A3C', margin: 10, borderRadius: 5, display: 'flex', justifyContent: "center", alignItems: 'center' }}>
+                    <View style={{ display: 'flex', flexDirection: 'row', height: 50, justifyContent: 'space-around', width: '100%', alignItems: "center" }}>
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Pesanan Anda</Text>
+                        <Text style={{ color: 'white' }}>{`${this.sumTotal().toLocaleString('id-ID')} item`}</Text>
+                        <Text style={{ color: 'white', fontWeight: "bold" }}>{this.sumPrice().toLocaleString('id-ID')}</Text>
+                    </View>
+                  
+                </TouchableOpacity>
+            )
+        }
+    }
+
     render(){
         return(
+            <View style={{flex : 1}}>
+                {console.log(this.state.keranjangList)}
+                <View style={{ padding: 10, borderBottomWidth : 1, borderBottomColor : '#dedede'}}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold', }}>
+                        Cafe Intaran
+                    </Text>
+                    <Text style={{ fontSize: 16, color: '#999999' }}>
+                        Jalan Gatsu Tengah no. 134, Gedung Dharma Negara Anglaya
+                    </Text>
+                </View>
             <ScrollView>
-                <View>
-                    {/* Header */}
-                    <View style={{borderWidth : 1, padding : 10,}}>
-                        <Text style={{fontSize : 20, fontWeight : 'bold',}}>
-                            Cafe Intaran
-                        </Text>
-                        <Text style={{ fontSize: 16, color : '#999999' }}>
-                            Jalan Gatsu Tengah no. 134, Gedung Dharma Negara Anglaya
-                        </Text>
-                    </View>
-                    <View style={{borderBottomWidth : 1, display : "flex", flexDirection : 'row', paddingHorizontal : 10, paddingVertical : 20, borderColor : '#999999'}}>
-                        <View style={{width : 120, height : 120}}>
-                            <Image source={image1} style={{
-                                flex: 1,
-                                width: null,
-                                height: null,
-                                resizeMode: "cover",
-                                borderRadius : 10
-                                
-                                }}/>
-                        </View>
-                        <View style={{justifyContent : 'space-around', marginLeft : 20}}>
-                            <View>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-                                    Nasi Biryani
-                                </Text>
-                                    <Text style={{ color: '#999999', fontSize: 16 }}>
-                                        Indonesian Food
-                                </Text>
-                            </View>
-                            <Text style={{ color: '#1FAD4F', fontWeight : 'bold'}}>
-                                Rp. 25.000
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{ borderBottomWidth: 1, display: "flex", flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 20, borderColor: '#999999' }}>
-                        <View style={{ width: 120, height: 120 }}>
-                            <Image source={image2} style={{
-                                flex: 1,
-                                width: null,
-                                height: null,
-                                resizeMode: "cover",
-                                borderRadius: 10
+                <View style={{paddingHorizontal : 20}}>
+                   {this.state.foodList.map((food)=>
+                       <TouchableOpacity
+                           key={food.id}
+                           onPress={() => this.props.navigation.navigate('Detailfood', { idMakanan: food.id })}
+                           style={{ borderBottomWidth: 1, display: "flex", flexDirection: 'row', paddingVertical: 20, borderColor: '#dedede' }}>
+                           <View style={{ width: 120, height: 120 }}>
+                               <Image source={{ uri: food._data.gambarMakanan }} style={{
+                                   flex: 1,
+                                   width: null,
+                                   height: null,
+                                   resizeMode: "cover",
+                                   borderRadius: 10
 
-                            }} />
-                        </View>
-                        <View style={{ justifyContent: 'space-around', marginLeft: 20 }}>
-                            <View>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-                                    Nasi Biryani
+                               }} />
+                           </View>
+                           <View style={{ justifyContent: 'space-around', marginLeft: 20 }}>
+                               <View>
+                                   <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+                                       {food._data.namaMakanan}
                                 </Text>
-                                <Text style={{ color: '#999999', fontSize: 16 }}>
-                                    Indonesian Food
+                                   <Text style={{ color: '#999999', fontSize: 16 }}>
+                                       {food._data.kategoriMakanan}
                                 </Text>
-                            </View>
-                            <Text style={{ color: '#1FAD4F', fontWeight: 'bold' }}>
-                                Rp. 25.000
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{ borderBottomWidth: 1, display: "flex", flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 20, borderColor: '#999999' }}>
-                        <View style={{ width: 120, height: 120 }}>
-                            <Image source={image3} style={{
-                                flex: 1,
-                                width: null,
-                                height: null,
-                                resizeMode: "cover",
-                                borderRadius: 10
-
-                            }} />
-                        </View>
-                        <View style={{ justifyContent: 'space-around', marginLeft: 20 }}>
-                            <View>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-                                    Nasi Biryani
+                               </View>
+                               <Text style={{ color: '#1FAD4F', fontWeight: 'bold' }}>
+                                   {food._data.hargaMakanan.toLocaleString('id-ID', { currency: 'IDR', style: 'currency' })}
                                 </Text>
-                                <Text style={{ color: '#999999', fontSize: 16 }}>
-                                    Indonesian Food
-                                </Text>
-                            </View>
-                            <Text style={{ color: '#1FAD4F', fontWeight: 'bold' }}>
-                                Rp. 25.000
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{ borderBottomWidth: 1, display: "flex", flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 20, borderColor: '#999999' }}>
-                        <View style={{ width: 120, height: 120 }}>
-                            <Image source={image4} style={{
-                                flex: 1,
-                                width: null,
-                                height: null,
-                                resizeMode: "cover",
-                                borderRadius: 10
-
-                            }} />
-                        </View>
-                        <View style={{ justifyContent: 'space-around', marginLeft: 20 }}>
-                            <View>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-                                    Nasi Biryani
-                                </Text>
-                                <Text style={{ color: '#999999', fontSize: 16 }}>
-                                    Indonesian Food
-                                </Text>
-                            </View>
-                            <Text style={{ color: '#1FAD4F', fontWeight: 'bold' }}>
-                                Rp. 25.000
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{ borderBottomWidth: 1, display: "flex", flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 20, borderColor: '#999999' }}>
-                        <View style={{ width: 120, height: 120 }}>
-                            <Image source={image5} style={{
-                                flex: 1,
-                                width: null,
-                                height: null,
-                                resizeMode: "cover",
-                                borderRadius: 10
-
-                            }} />
-                        </View>
-                        <View style={{ justifyContent: 'space-around', marginLeft: 20 }}>
-                            <View>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-                                    Nasi Biryani
-                                </Text>
-                                <Text style={{ color: '#999999', fontSize: 16 }}>
-                                    Indonesian Food
-                                </Text>
-                            </View>
-                            <Text style={{ color: '#1FAD4F', fontWeight: 'bold' }}>
-                                Rp. 25.000
-                            </Text>
-                        </View>
-                    </View>
+                           </View>
+                       </TouchableOpacity>
+                   )}
                 </View>
             </ScrollView>
+            <View>
+                {this.lihatKeranjang()}
+            </View>
+            </View>
         )
     }
 }

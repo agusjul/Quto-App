@@ -1,25 +1,43 @@
 import React, { Component } from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, StatusBar, ScrollView} from 'react-native';
 import QrImage from '../src/image/qrcode.png';
-import image1 from '../src/image/zamato/1.jpg';
-import image2 from '../src/image/zamato/2.jpg';
-import image3 from '../src/image/zamato/3.jpg';
-import image4 from '../src/image/zamato/4.jpg';
+import firestore from '@react-native-firebase/firestore';
 
 import { useScrollToTop } from '@react-navigation/native';
 
 class Foodpage extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+          recomendedFood : []
+        }
+        this.autoGetUser()
+    }
 
     toQRcode = () => {
         
         this.props.navigation.navigate('QRCode')
     }
 
-    
+    autoGetUser = () => {
+        firestore()
+            .collection("foodList")
+            .onSnapshot(docs => {
+                let foodlist = []
+                docs.forEach(doc => {
+                    foodlist.push(doc)
+                })
+                this.setState({
+                    recomendedFood : foodlist
+                })
+            })
+    }
 
     render(){
         return(
             <ScrollView style={{height : '100%'}}>
+            {console.log(this.state.recomendedFood)}
             <View style={styles.container}>
                 <StatusBar backgroundColor='#F16A3C' barStyle='light-content' />
                 <View style={styles.header}>
@@ -39,33 +57,15 @@ class Foodpage extends Component {
                         <Text style={{fontSize : 14, fontWeight : 'bold', paddingTop : 20}}>Rekomendasi Menu</Text>
                         <View>
                             <ScrollView horizontal={true} showsHorizontalScrollIndicator ={false}>
-                                 <TouchableOpacity style={{ height: 190, width: 150, marginTop: 20, marginRight: 20, borderWidth: 1, borderColor : '#999999', borderRadius : 10}}>
-                                    <View style={{
-                                            height: 150, width: '100%', borderTopLeftRadius: 10,
-                                            borderTopRightRadius: 10}}>
-                                        <Image
-                                            source={image1}
-                                            style={{
-                                                flex: 1,
-                                                width: null,
-                                                height: null,
-                                                resizeMode: "cover",
-                                                borderTopLeftRadius: 10,
-                                                borderTopRightRadius: 10
-                                            }}
-                                        />
-                                    </View>
-                                    <Text style={{paddingTop : 5, paddingLeft  : 5, marginBottom : 0, paddingBottom : 0}}>
-                                        Nasi Biryani
-                                    </Text>
-                                </TouchableOpacity> 
-                                    <TouchableOpacity style={{ height: 190, width: 150, marginTop: 20, marginRight: 20, borderWidth: 1, borderColor: '#999999', borderRadius: 10 }}>
+                                {this.state.recomendedFood.map((food) =>
+                                    <TouchableOpacity key={food.id} onPress={() => this.props.navigation.navigate('Detailfood', { idMakanan : food.id })}
+                                        style={{ width: 150, marginTop: 20, marginRight: 20, borderWidth: 1, borderColor: '#999999', borderRadius: 10 }}>
                                         <View style={{
                                             height: 150, width: '100%', borderTopLeftRadius: 10,
                                             borderTopRightRadius: 10
                                         }}>
                                             <Image
-                                                source={image2}
+                                                source={{ uri: food._data.gambarMakanan }}
                                                 style={{
                                                     flex: 1,
                                                     width: null,
@@ -76,53 +76,14 @@ class Foodpage extends Component {
                                                 }}
                                             />
                                         </View>
+                                        <Text style={{ paddingTop: 5, paddingLeft: 5, marginBottom: 0, paddingBottom: 0, fontWeight: 'bold' }}>
+                                            {food._data.namaMakanan}
+                                    </Text>
                                         <Text style={{ paddingTop: 5, paddingLeft: 5, marginBottom: 0, paddingBottom: 0 }}>
-                                            Bebek Bakar
+                                            {food._data.hargaMakanan.toLocaleString('id-ID', { currency: 'IDR', style: 'currency' })}
                                     </Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={{ height: 190, width: 150, marginTop: 20, marginRight: 20, borderWidth: 1, borderColor: '#999999', borderRadius: 10 }}>
-                                        <View style={{
-                                            height: 150, width: '100%', borderTopLeftRadius: 10,
-                                            borderTopRightRadius: 10
-                                        }}>
-                                            <Image
-                                                source={image3}
-                                                style={{
-                                                    flex: 1,
-                                                    width: null,
-                                                    height: null,
-                                                    resizeMode: "cover",
-                                                    borderTopLeftRadius: 10,
-                                                    borderTopRightRadius: 10
-                                                }}
-                                            />
-                                        </View>
-                                        <Text style={{ paddingTop: 5, paddingLeft: 5, marginBottom: 0, paddingBottom: 0 }}>
-                                            Ayam Kremes
-                                    </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={{ height: 190, width: 150, marginTop: 20, borderWidth: 1, borderColor: '#999999', borderRadius: 10 }}>
-                                        <View style={{
-                                            height: 150, width: '100%', borderTopLeftRadius: 10,
-                                            borderTopRightRadius: 10
-                                        }}>
-                                            <Image
-                                                source={image4}
-                                                style={{
-                                                    flex: 1,
-                                                    width: null,
-                                                    height: null,
-                                                    resizeMode: "cover",
-                                                    borderTopLeftRadius: 10,
-                                                    borderTopRightRadius: 10
-                                                }}
-                                            />
-                                        </View>
-                                        <Text style={{ paddingTop: 5, paddingLeft: 5, marginBottom: 0, paddingBottom: 0 }}>
-                                            Iga Bakar
-                                    </Text>
-                                    </TouchableOpacity>
-                                                               
+                                )}                                                          
                            </ScrollView>
                         </View>
                     </View>

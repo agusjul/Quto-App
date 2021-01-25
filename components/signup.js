@@ -82,7 +82,7 @@ class Signup extends React.Component {
                     secureTextEntry={true}
                 />
                 <Button
-                    color="lightskyblue"
+                    color="#F16A3C"
                     title="Signup"
                     onPress={() => this.registerUser()}
                 />
@@ -112,10 +112,10 @@ const styles = StyleSheet.create({
         paddingBottom: 15,
         alignSelf: "center",
         borderColor: "#ccc",
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
     },
     loginText: {
-        color: 'lightskyblue',
+        color: '#F16A3C',
         marginTop: 25,
         textAlign: 'center'
     },

@@ -70,7 +70,7 @@ export default class Login extends Component {
                     secureTextEntry={true}
                 />
                 <Button
-                    color="lightskyblue"
+                    color="#F16A3C"
                     title="Signin"
                     onPress={() => this.userLogin()}
                 />
@@ -79,7 +79,14 @@ export default class Login extends Component {
                     style={styles.loginText}
                     onPress={() => this.props.navigation.navigate('Signup')}>
                     Don't have account? Click here to signup
-        </Text>
+                </Text>
+                <View>
+                    <Text
+                        style={styles.loginText}
+                        onPress={() => this.props.navigation.navigate('Homepageadmin')}>
+                        Admin Login
+                    </Text>
+                </View>
             </View>
         );
     }
@@ -103,7 +110,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1
     },
     loginText: {
-        color: 'lightskyblue',
+        color: '#F16A3C',
         marginTop: 25,
         textAlign: 'center'
     },
